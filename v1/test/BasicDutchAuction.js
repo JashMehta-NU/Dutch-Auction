@@ -1,20 +1,18 @@
-const {
-    time,
-    loadFixture,
-    mine,
-  } = require("@nomicfoundation/hardhat-network-helpers");
+  //for time manipulation
+  const {time,loadFixture,mine} = require("@nomicfoundation/hardhat-network-helpers");
   const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
   const { expect, assert } = require("chai");
   
   
   describe("Lock", function () {
     async function BasicDutchAuctiondeploy() {
-  
+      
+      //retrieving ethereum accounts available on the currnt node
       const [owner, otherAccount] = await ethers.getSigners();
   
       const BasicDutchAuction = await ethers.getContractFactory("BasicDutchAuction");
       const basicdutchauction = await BasicDutchAuction.deploy();
-      // get default signer, in Signer abstraction form
+      // get default signer which is owner
       signer = ethers.provider.getSigner(0);
   
       // get default signer, but just the address!
@@ -24,6 +22,7 @@ const {
   
     describe("Deployment", function () {
       it("Check if the starting block is 0", async function () {
+        //loadFixture deploys the contract
         const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
         expect(await basicdutchauction.blocknumber()).to.equal(1);
       });
@@ -34,7 +33,7 @@ const {
         expect(await basicdutchauction.initialPrice()).to.equal(bigNum);
       });
   
-      it("Accepts higher bid of 10ETH. Other account gets the bid amount & remaining ether is transferred to donor. ", async function () {
+      it("Accepts higher bid of 10ETH. Check if the owner gets the bid amount and the remaining is sent back to the donor ", async function () {
         var bigNum = BigInt("10000000000000000000");
         var expectedOwnerBalance = BigInt("10001578534509375000000");
         var expectedOtherAccBalance = BigInt("9998419843994169810437");
@@ -45,13 +44,13 @@ const {
         expect(await basicdutchauction.checkbalance()).to.equal(0);
       });
   
-      it("Rejects lower bid", async function () {
+      it("Check if Rejects lower bid", async function () {
         var bigNum = BigInt("1400000000000000000");
         const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
         await expect(basicdutchauction.receiveMoney({ value: bigNum })).to.be.revertedWith('Not enough ether sent.');
       });
   
-      it("Rejects second bid ", async function () {
+      it("Check if Rejects second bid ", async function () {
         var bigNum = BigInt("1600000000000000000");
         const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
         await expect(basicdutchauction.receiveMoney({ value: bigNum })).eventually.to.ok;
