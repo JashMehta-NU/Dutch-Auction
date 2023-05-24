@@ -33,7 +33,7 @@
         expect(await basicdutchauction.initialPrice()).to.equal(bigNum);
       });
   
-      it("Accepts higher bid of 10ETH. Check if the owner gets the bid amount and the remaining is sent back to the donor ", async function () {
+      it("Accepts higher bid of 10ETH. Check if the owner gets the bid amount and the remaining is sent back to the bidder", async function () {
         var bigNum = BigInt("10000000000000000000");
         var expectedOwnerBalance = BigInt("10001578534509375000000");
         var expectedOtherAccBalance = BigInt("9998419843994169810437");
@@ -43,7 +43,7 @@
         expect(await otherAccount.getBalance()).to.equal(expectedOtherAccBalance);
         expect(await basicdutchauction.checkbalance()).to.equal(0);
       });
-  
+   
       it("Check if Rejects lower bid", async function () {
         var bigNum = BigInt("1400000000000000000");
         const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
