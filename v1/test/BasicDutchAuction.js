@@ -12,6 +12,7 @@ describe("Lock", function () {
 
     const BasicDutchAuction = await ethers.getContractFactory("BasicDutchAuction");
     const basicdutchauction = await BasicDutchAuction.deploy();
+
     // get default signer which is owner
     signer = ethers.provider.getSigner(0);
 
@@ -34,7 +35,7 @@ describe("Lock", function () {
       expect(await basicdutchauction.offerPriceDecrement()).to.equal(ethers.utils.parseEther("0.01"));
       expect(await basicdutchauction.numBlocksAuctionOpen()).to.equal(10);
       expect(await basicdutchauction.owner()).to.equal(owner.address);
-    });  
+    });
 
     it("Check if the initialPrice is 1600000000000000000 wei", async function () {
       var bigNum = BigInt("1600000000000000000");
@@ -56,14 +57,18 @@ describe("Lock", function () {
     });
 
     it("After block 10, price should be 1.5 ETH. Here, block number is 15", async function () {
-      var priceBigNum = BigInt("1500000000000000000");
-      const ModifyVariable = await ethers.getContractFactory("BasicDutchAuction");
-      const contract = await ModifyVariable.deploy();
-      await contract.deployed();
-      await mine(1000);
-      const newX = await contract.blocknumber();
-      expect(await contract.getprice()).to.equal(priceBigNum);
+      const priceBigNum = ethers.utils.parseEther("1.5");
+      const { basicdutchauction } = await loadFixture(BasicDutchAuctiondeploy);
+      
+      // Mine blocks until reaching block 15
+      for (let i = 0; i < 15; i++) {
+        await mine();
+      }
+      
+      const actualPrice = await basicdutchauction.getprice();
+      expect(actualPrice).to.equal(priceBigNum);
     });
+    
 
     it("Initial contract balance is 0", async function () {
       const ModifyVariable = await ethers.getContractFactory("BasicDutchAuction");
@@ -73,13 +78,37 @@ describe("Lock", function () {
     });
 
     it("should revert when not enough ether is sent", async function () {
-      const { basicdutchauction, owner,otherAccount } = await loadFixture(BasicDutchAuctiondeploy);
+      const { basicdutchauction, owner, otherAccount } = await loadFixture(BasicDutchAuctiondeploy);
       const bidAmount = ethers.utils.parseEther("1");
       await expect(basicdutchauction.connect(otherAccount).receiveMoney({ value: bidAmount })).to.be.revertedWith(
         "Not enough ether sent."
       );
     });
-
+    
+    it("should keep the bid amount constant after the auction ends without meeting the reserve price", async function () {
+      const { basicdutchauction, owner, otherAccount } = await loadFixture(BasicDutchAuctiondeploy);
+      //we first set the bid amount
+      const bidAmount = ethers.utils.parseEther("1.6");
+      //now we make a bid
+      await basicdutchauction.connect(otherAccount).receiveMoney({ value: bidAmount });
+       // Increase the time by more than the number of blocks for the auction to end
+      await time.increase(11 * 15);
+      //now we Check if the bid amount remains the same
+      expect(await basicdutchauction.initialPrice()).to.equal(bidAmount);
+    });
+    
+    it("should accept a bid greater than the reserve price", async function () {
+      const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
+      const bidAmount = ethers.utils.parseEther("1.6");
+      await expect(basicdutchauction.receiveMoney({ value: bidAmount })).to.eventually.be.fulfilled;
+    });
+    
+    it("should reject a bid less than the reserve price but greater than the initial price", async function () {
+      const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
+      const bidAmount = ethers.utils.parseEther("1.55");
+      await expect(basicdutchauction.receiveMoney({ value: bidAmount })).to.be.revertedWith('Not enough ether sent.');
+    });    
+    
   });
 
 });
