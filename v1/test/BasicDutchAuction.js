@@ -138,9 +138,7 @@ describe("Lock", function () {
       const lowerBid = initialPrice.sub(ethers.utils.parseEther("0.01"));
       await expect(basicdutchauction.receiveMoney({ value: lowerBid })).to.be.reverted;
       expect(await basicdutchauction.initialPrice()).to.equal(initialPrice);
-    });    
-    
-    
+    });        
   });
 
 });
