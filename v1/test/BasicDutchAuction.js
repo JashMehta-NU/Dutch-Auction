@@ -107,7 +107,39 @@ describe("Lock", function () {
       const { basicdutchauction, owner } = await loadFixture(BasicDutchAuctiondeploy);
       const bidAmount = ethers.utils.parseEther("1.55");
       await expect(basicdutchauction.receiveMoney({ value: bidAmount })).to.be.revertedWith('Not enough ether sent.');
+    });   
+
+    it("should reject a bid less than the reserve price but greater than the initial price", async function () {
+      const { basicdutchauction } = await loadFixture(BasicDutchAuctiondeploy);
+      const bidAmount = ethers.utils.parseEther("1.55");
+      await expect(basicdutchauction.receiveMoney({ value: bidAmount })).to.be.revertedWith('Not enough ether sent.');
+      expect(await basicdutchauction.initialPrice()).to.not.equal(bidAmount);
+    });
+
+    it("should reject a bid greater than the initial price but less than the reserve price", async function () {
+      const { basicdutchauction } = await loadFixture(BasicDutchAuctiondeploy);
+      const initialPrice = await basicdutchauction.initialPrice();
+      const reservePrice = await basicdutchauction.reservePrice();
+      const bidAmount = initialPrice.add(reservePrice).div(2);
+      await expect(basicdutchauction.receiveMoney({ value: bidAmount })).to.be.revertedWith('Not enough ether sent.');
+      expect(await basicdutchauction.initialPrice()).to.not.equal(bidAmount);
+    });
+
+    it("should accept a bid equal to the initial price", async function () {
+      const { basicdutchauction } = await loadFixture(BasicDutchAuctiondeploy);
+      const initialPrice = await basicdutchauction.initialPrice();
+      await expect(basicdutchauction.receiveMoney({ value: initialPrice })).to.eventually.be.fulfilled;
+      expect(await basicdutchauction.initialPrice()).to.equal(initialPrice);
+    });
+
+    it("should reject a bid lower than the initial price", async function () {
+      const { basicdutchauction } = await loadFixture(BasicDutchAuctiondeploy);
+      const initialPrice = await basicdutchauction.initialPrice();
+      const lowerBid = initialPrice.sub(ethers.utils.parseEther("0.01"));
+      await expect(basicdutchauction.receiveMoney({ value: lowerBid })).to.be.reverted;
+      expect(await basicdutchauction.initialPrice()).to.equal(initialPrice);
     });    
+    
     
   });
 

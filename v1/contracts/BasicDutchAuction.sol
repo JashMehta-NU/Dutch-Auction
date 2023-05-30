@@ -45,6 +45,8 @@ contract BasicDutchAuction {
         require(donor == address(0), "Someone has already donated");
        
         require(msg.value >= getprice(), "Not enough ether sent.");
+
+        require(msg.value >= initialPrice, "Bid amount lower than initial price");
         
         donor = msg.sender;
         finalPrice = getprice();
