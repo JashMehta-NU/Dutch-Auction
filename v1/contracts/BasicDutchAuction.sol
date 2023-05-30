@@ -42,9 +42,9 @@ contract BasicDutchAuction {
     }
 
     function receiveMoney() public payable {
-        require(donor == address(0), "Someone has already donated");
+        require(donor == address(0), "Bidding is already done");
        
-        require(msg.value >= getprice(), "Not enough ether sent.");
+        require(msg.value >= getprice(), "Not enough ether sent");
 
         require(msg.value >= initialPrice, "Bid amount lower than initial price");
         
