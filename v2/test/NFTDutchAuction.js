@@ -185,7 +185,7 @@ describe("MyNFT", function () {
       expect(await mynft.balanceOf(owner.getAddress())).to.equal(0);
       expect(await mynft.balanceOf(otherAccount.getAddress())).to.equal(1);
     });
-    /////////////////////////////
+
     it("should return true for ERC721 interface", async function () {
       const { mynft, owner, otherAccount } = await loadFixture(deployMyNFTSmartContract);
       const interfaceId = "0x80ac58cd";
@@ -207,7 +207,15 @@ describe("MyNFT", function () {
       expect(result).to.be.false;
     });
 
-
+    it('should revert if not enough ether is sent', async function () {
+      const { mynft,otherAccount } = await loadFixture(deployMyNFTSmartContract);
+      // Get the current price
+      const price = await mynft.price();
+  
+      // Attempt to mint without sending enough ether
+      await expect(mynft.safeMint(otherAccount.address, { value: price.sub(ethers.utils.parseEther('0.01')) }))
+        .to.be.reverted;
+    });
 
     it("should return the correct base URI", async function () {
       const { mynft, owner, otherAccount } = await loadFixture(deployMyNFTSmartContract);
@@ -239,11 +247,5 @@ describe("MyNFT", function () {
         await expect(mynft.withdraw()).to.not.be.reverted;
       }
     });
-    
-    
-
-
   });
-
-
 });
