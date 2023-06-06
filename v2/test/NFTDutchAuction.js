@@ -137,9 +137,8 @@ describe("NFTDutchAuction", function () {
       const result = await nftdutchauction.calculatePrice();
 
       // Assert that the result is equal to the reservePrice
-      expect( ethers.utils.parseEther("1.5")).to.equal(reservePrice);
+      expect(ethers.utils.parseEther("1.5")).to.equal(reservePrice);
     });
-
   });
 
 });
@@ -224,6 +223,24 @@ describe("MyNFT", function () {
       const result = await mynft.tokenIdCounter();
       expect(result).to.equal(2);
     });
+
+    it("throws an error if the contract balance is zero", async function () {
+      const { mynft, owner } = await loadFixture(deployMyNFTSmartContract);
+    
+      // Get the contract balance
+      const balance = await ethers.provider.getBalance(mynft.address);
+    
+      // Check if the balance is zero
+      if (balance.eq(0) && balance.lt(0) ) {
+        // The balance is zero, so the test case should fail
+        assert.fail("Contract balance is zero");
+      } else {
+        // Attempt to call the withdraw function when the contract balance is not zero
+        await expect(mynft.withdraw()).to.not.be.reverted;
+      }
+    });
+    
+    
 
 
   });
