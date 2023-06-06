@@ -32,7 +32,7 @@ contract BasicDutchAuction {
         if (endBlock < block.number) {
             return reservePrice;
         }
-        //else we decrease the price durinf each subsequent block
+        //else we decrease the price during each subsequent block
         return initialPrice  - (block.number * offerPriceDecrement);
 
     }
@@ -59,7 +59,7 @@ contract BasicDutchAuction {
 
         //checking if any extra ethers were sent by the bidder to the owner
         if(msg.value > finalPrice){
-
+            
         (bool sentRemainingETH,) = msg.sender.call{value:contractAddress.balance}("");
         require(sentRemainingETH, "Couldn't send remaining ether");
         }
