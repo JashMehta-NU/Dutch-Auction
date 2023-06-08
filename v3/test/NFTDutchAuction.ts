@@ -48,99 +48,99 @@ describe("NFTDutchAuction", function () {
     return { erc20mynft, erc721mynft, owner, otherAccount, erc20mynfttokenaddress, nftdutchauction, tokenTransferAccount, nftdutchauctionaddress };
   }
   describe("Deployment", function () {
-      it("Creates MyNFT NFT Token Collection", async function () {
-        const { otherAccount, erc20mynft, erc20mynfttokenaddress} = await loadFixture(deployNFTDutchAuctionSmartContract);
-        expect(await erc20mynft.name()).to.exist;
-        expect(await erc20mynft.name()).to.equal('MN Coin');
-      });
-  
-      it("MyNFT Token is minted to owner", async function () {
-        const { erc20mynft, owner } = await loadFixture(deployNFTDutchAuctionSmartContract);
-        expect(await erc20mynft.balanceOf(owner.address)).to.equal("1000000");
-      });
-  
-  
-      it("NFTDutchAuction is deployed and initial price is 100 (ERC20 Tokens)", async function () {
-        const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
-        expect(await nftdutchauction.calculatePrice()).to.equal("100");
-      });
-  
-  
-      it("Accepts 100 (ERC20) bid ", async function () {
-        const { otherAccount, nftdutchauction, erc20mynft, owner, erc721mynft, nftdutchauctionaddress, tokenTransferAccount } = await loadFixture(deployNFTDutchAuctionSmartContract);
-  
-        expect(await erc721mynft.approve(nftdutchauctionaddress, 1)).to.ok;
-  
-        expect(await erc20mynft.connect(otherAccount).approve(nftdutchauctionaddress, 100000)).to.ok;
-  
-        expect(await erc20mynft.transfer(otherAccount.address, 1000)).to.ok;
-  
-        expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(1000);
-  
-        expect(await erc20mynft.balanceOf(owner.address)).to.equal(999000);
-  
-  
-        console.log("Owner address is", owner.address);
-  
-        console.log("Other Account address is", otherAccount.address);
-  
-        console.log("Token Transfer Account address is", tokenTransferAccount.address);
-  
-        console.log("Allowance from other acc to contract", await erc20mynft.allowance(otherAccount.address, nftdutchauctionaddress));
-  
-        console.log("Allowance from contract acc to owner", await erc20mynft.allowance(nftdutchauctionaddress, owner.address));
-  
-        console.log("Allowance from contract to acc of tokens", await erc20mynft.allowance(nftdutchauctionaddress, tokenTransferAccount.address));
-  
-        const contractnew = await nftdutchauction.connect(otherAccount);
-        expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(1000);
-        expect(await nftdutchauction.calculatePrice()).to.equal(97);
-  
-        expect(await contractnew.receiveMoney(100)).to.ok;
-  
-        expect(await erc20mynft.balanceOf(tokenTransferAccount.address)).to.equal(96);
-  
-        expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(904);
-  
-        expect(await erc20mynft.balanceOf(owner.address)).to.equal(999000);
-  
-      });
-  
-      it("Mines 100 blocks to check reserve price is correct: 5", async function () {
-        const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
-        await expect(nftdutchauction.calculatePrice()).eventually.to.equal(100);
-        mine(1000);
-        await expect(nftdutchauction.getCurrentBlockNumber()).eventually.to.equal(1005);
-        await expect(nftdutchauction.calculatePrice()).eventually.to.equal(5);
-      });
-  
-      it("Supports correct interface", async function () {
-        const { erc721mynft } = await loadFixture(deployNFTDutchAuctionSmartContract);
-        await expect(erc721mynft.supportsInterface("0x12345678")).eventually.to.equal(false);
-      });
-  
-      it("Rejects lower value bid ", async function () {
-        const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
-        await expect(nftdutchauction.receiveMoney(1)).to.be.revertedWith("Not enough ether sent.");
-      });
-
-      it("Reverts if the bidder has insufficient token balance", async function () {
-        const { otherAccount, nftdutchauction, erc20mynft, owner, erc721mynft, nftdutchauctionaddress } = await loadFixture(deployNFTDutchAuctionSmartContract);
-      
-        expect(await erc721mynft.approve(nftdutchauctionaddress, 1)).to.ok;
-      
-        expect(await erc20mynft.connect(otherAccount).approve(nftdutchauctionaddress, BigNumber.from(100))).to.ok;
-      
-        const contract = await nftdutchauction.connect(otherAccount);
-      
-        const balanceBefore = await erc20mynft.balanceOf(otherAccount.address);
-        const amount = balanceBefore.add(BigNumber.from(1));
-      
-        await expect(contract.receiveMoney(amount)).to.be.revertedWith("Insufficient token balance");
-      });
-      
+    it("Creates MyNFT NFT Token Collection", async function () {
+      const { otherAccount, erc20mynft, erc20mynfttokenaddress } = await loadFixture(deployNFTDutchAuctionSmartContract);
+      expect(await erc20mynft.name()).to.exist;
+      expect(await erc20mynft.name()).to.equal('MN Coin');
     });
-  
-  
+
+    it("MyNFT Token is minted to owner", async function () {
+      const { erc20mynft, owner } = await loadFixture(deployNFTDutchAuctionSmartContract);
+      expect(await erc20mynft.balanceOf(owner.address)).to.equal("1000000");
+    });
+
+
+    it("NFTDutchAuction is deployed and initial price is 100 (ERC20 Tokens)", async function () {
+      const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
+      expect(await nftdutchauction.calculatePrice()).to.equal("100");
+    });
+
+
+    it("Accepts 100 (ERC20) bid ", async function () {
+      const { otherAccount, nftdutchauction, erc20mynft, owner, erc721mynft, nftdutchauctionaddress, tokenTransferAccount } = await loadFixture(deployNFTDutchAuctionSmartContract);
+
+      expect(await erc721mynft.approve(nftdutchauctionaddress, 1)).to.ok;
+
+      expect(await erc20mynft.connect(otherAccount).approve(nftdutchauctionaddress, 100000)).to.ok;
+
+      expect(await erc20mynft.transfer(otherAccount.address, 1000)).to.ok;
+
+      expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(1000);
+
+      expect(await erc20mynft.balanceOf(owner.address)).to.equal(999000);
+
+
+      console.log("Owner address is", owner.address);
+
+      console.log("Other Account address is", otherAccount.address);
+
+      console.log("Token Transfer Account address is", tokenTransferAccount.address);
+
+      console.log("Allowance from other acc to contract", await erc20mynft.allowance(otherAccount.address, nftdutchauctionaddress));
+
+      console.log("Allowance from contract acc to owner", await erc20mynft.allowance(nftdutchauctionaddress, owner.address));
+
+      console.log("Allowance from contract to acc of tokens", await erc20mynft.allowance(nftdutchauctionaddress, tokenTransferAccount.address));
+
+      const contractnew = await nftdutchauction.connect(otherAccount);
+      expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(1000);
+      expect(await nftdutchauction.calculatePrice()).to.equal(97);
+
+      expect(await contractnew.receiveMoney(100)).to.ok;
+
+      expect(await erc20mynft.balanceOf(tokenTransferAccount.address)).to.equal(96);
+
+      expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(904);
+
+      expect(await erc20mynft.balanceOf(owner.address)).to.equal(999000);
+
+    });
+
+    it("Mines 100 blocks to check reserve price is correct: 5", async function () {
+      const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
+      await expect(nftdutchauction.calculatePrice()).eventually.to.equal(100);
+      mine(1000);
+      await expect(nftdutchauction.getCurrentBlockNumber()).eventually.to.equal(1005);
+      await expect(nftdutchauction.calculatePrice()).eventually.to.equal(5);
+    });
+
+    it("Supports correct interface", async function () {
+      const { erc721mynft } = await loadFixture(deployNFTDutchAuctionSmartContract);
+      await expect(erc721mynft.supportsInterface("0x12345678")).eventually.to.equal(false);
+    });
+
+    it("Rejects lower value bid ", async function () {
+      const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
+      await expect(nftdutchauction.receiveMoney(1)).to.be.revertedWith("Not enough ether sent.");
+    });
+
+    it("Reverts if the bidder has insufficient token balance", async function () {
+      const { otherAccount, nftdutchauction, erc20mynft, owner, erc721mynft, nftdutchauctionaddress } = await loadFixture(deployNFTDutchAuctionSmartContract);
+
+      expect(await erc721mynft.approve(nftdutchauctionaddress, 1)).to.ok;
+
+      expect(await erc20mynft.connect(otherAccount).approve(nftdutchauctionaddress, BigNumber.from(100))).to.ok;
+
+      const contract = await nftdutchauction.connect(otherAccount);
+
+      const balanceBefore = await erc20mynft.balanceOf(otherAccount.address);
+      const amount = balanceBefore.add(BigNumber.from(1));
+
+      await expect(contract.receiveMoney(amount)).to.be.revertedWith("Insufficient token balance");
+    });
+
+  });
+
+
 });
 
