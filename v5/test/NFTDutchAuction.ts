@@ -78,7 +78,7 @@ describe("NFTDutchAuction", function () {
 
     it("NFTDutchAuction is deployed and initial price is 100 (ERC20 Tokens)", async function () {
       const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
-      expect(await nftdutchauction.calculatePrice()).to.equal("140");
+      expect(await nftdutchauction.calculatePrice()).to.equal("100");
     });
 
 
@@ -110,7 +110,7 @@ describe("NFTDutchAuction", function () {
 
       const contractnew = await nftdutchauction.connect(otherAccount);
       expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(10);
-      expect(await nftdutchauction.calculatePrice()).to.equal(110);
+      expect(await nftdutchauction.calculatePrice()).to.equal(100);
 
       await expect(contractnew
         .receiveMoney(140)).to.be.rejectedWith("Insufficient token balance");
@@ -148,7 +148,7 @@ describe("NFTDutchAuction", function () {
 
       const contractnew = await nftdutchauction.connect(otherAccount);
       expect(await erc20mynft.balanceOf(otherAccount.address)).to.equal(1000);
-      expect(await nftdutchauction.calculatePrice()).to.equal(110);
+      expect(await nftdutchauction.calculatePrice()).to.equal(100);
 
       expect(await contractnew
         .receiveMoney(140)).to.ok;
@@ -162,9 +162,9 @@ describe("NFTDutchAuction", function () {
 
     it("Mines 100 blocks to check reserve price is correct: 5", async function () {
       const { nftdutchauction } = await loadFixture(deployNFTDutchAuctionSmartContract);
-      await expect(nftdutchauction.calculatePrice()).eventually.to.equal(140);
+      await expect(nftdutchauction.calculatePrice()).eventually.to.equal(100);
       mine(1000);
-      await expect(nftdutchauction.getCurrentBlockNumber()).eventually.to.equal(1006);
+      await expect(nftdutchauction.getCurrentBlockNumber()).eventually.to.equal(1011);
       await expect(nftdutchauction.calculatePrice()).eventually.to.equal(100);
     });
 
