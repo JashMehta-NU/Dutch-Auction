@@ -3,6 +3,7 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect, assert } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { getContractAddress } from "@ethersproject/address";
+import { BigNumber } from "ethers";
 
 describe("NFTDutchAuction", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -190,8 +191,24 @@ describe("NFTDutchAuction", function () {
       });
       await nftdutchauctionv2.deployed();
       expect(await nftdutchauctionv2.getMessage()).to.equal('v2');
-    });      
+    });     
     
+    it("Reverts if the bidder has insufficient token balance", async function () {
+      const { otherAccount, nftdutchauction, erc20mynft, owner, erc721mynft, nftdutchauctionaddress } = await loadFixture(deployNFTDutchAuctionSmartContract);
+
+      expect(await erc721mynft.approve(nftdutchauctionaddress, 1)).to.ok;
+
+      expect(await erc20mynft.connect(otherAccount).approve(nftdutchauctionaddress, BigNumber.from(100))).to.ok;
+
+      const contract = await nftdutchauction.connect(otherAccount);
+
+      const balanceBefore = await erc20mynft.balanceOf(otherAccount.address);
+      const amount = balanceBefore.add(BigNumber.from(1));
+
+      await expect(contract.receiveMoney(amount)).to.be.rejectedWith("Insufficient token balance");
+    });
+
   });
+    
 
 });
