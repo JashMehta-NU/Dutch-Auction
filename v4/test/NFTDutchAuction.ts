@@ -207,7 +207,6 @@ describe("NFTDutchAuction", function () {
 
       await expect(contract.receiveMoney(amount)).to.be.rejectedWith("Insufficient token balance");
     });
-
   });
     
 
