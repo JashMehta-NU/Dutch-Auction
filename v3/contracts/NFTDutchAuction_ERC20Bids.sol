@@ -51,7 +51,7 @@ contract MyNFT is ERC721, ERC721Enumerable, Pausable, Ownable {
         address to,
         uint256 tokenId,
         uint256 batchSize
-    ) internal override(ERC721, ERC721Enumerable) whenNotPaused {
+    ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 

@@ -139,6 +139,17 @@ describe("NFTDutchAuction", function () {
       await expect(contract.receiveMoney(amount)).to.be.revertedWith("Insufficient token balance");
     });
 
+    it("Reverts when the sender has insufficient token balance", async function () {
+      const { otherAccount, nftdutchauction, erc20mynft, owner, erc721mynft, nftdutchauctionaddress } = await loadFixture(deployNFTDutchAuctionSmartContract);
+    
+      // Set up insufficient token balance
+      await erc20mynft.connect(otherAccount).approve(nftdutchauctionaddress, 100);
+      await erc20mynft.transfer(otherAccount.address, 99); // Less than the required amount
+    
+      // Attempt to call the function
+      await expect(nftdutchauction.connect(otherAccount).receiveMoney(100)).to.be.revertedWith("Insufficient token balance");
+    });
+
   });
 
 
